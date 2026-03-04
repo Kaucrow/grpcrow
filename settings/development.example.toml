@@ -1,0 +1,20 @@
+debug = true
+
+[db]
+host = 'localhost'
+port = 5432
+name = 'shelter'
+user = ''
+pass = ''
+
+[gateway]
+host = 'localhost'
+port = 8000
+protocol = 'http'
+
+[gateway.endpoints]
+
+[read]
+host = '127.0.0.1'
+port = 50051
+protocol = 'http'

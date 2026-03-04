@@ -1,0 +1,11 @@
+read:
+  getAnimalById: |
+    SELECT
+      id,
+      name,
+      species,
+      breed
+    FROM
+      animals
+    WHERE
+      id = $1

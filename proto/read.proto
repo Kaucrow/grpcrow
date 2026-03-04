@@ -1,0 +1,17 @@
+syntax = "proto3";
+package shelter;
+
+service ReadService {
+    rpc GetAnimal (AnimalRequest) returns (AnimalResponse);
+}
+
+message AnimalRequest {
+    int32 id = 1;
+}
+
+message AnimalResponse {
+    int32 id = 1;
+    string name = 2;
+    string species = 3;
+    string breed = 4;
+}
