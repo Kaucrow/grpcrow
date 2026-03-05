@@ -9,6 +9,7 @@ pub struct Queries {
 #[serde(rename_all = "camelCase")]
 pub struct Read {
     pub get_animal_by_id: String,
+    pub get_all_animals: String,
 }
 
 pub fn queries() -> Result<Queries, config::ConfigError> {

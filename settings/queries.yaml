@@ -1,11 +1,8 @@
 read:
   getAnimalById: |
-    SELECT
-      id,
-      name,
-      species,
-      breed
-    FROM
-      animals
-    WHERE
-      id = $1
+    SELECT id, name, species, breed
+    FROM animals
+    WHERE id = $1
+
+  getAllAnimals: |
+    SELECT * FROM animals

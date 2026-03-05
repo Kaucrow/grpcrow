@@ -4,6 +4,8 @@ pub struct AnimalRequest {
     #[prost(int32, tag = "1")]
     pub id: i32,
 }
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetAllAnimalsRequest {}
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AnimalResponse {
     #[prost(int32, tag = "1")]
@@ -14,6 +16,11 @@ pub struct AnimalResponse {
     pub species: ::prost::alloc::string::String,
     #[prost(string, tag = "4")]
     pub breed: ::prost::alloc::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AnimalListResponse {
+    #[prost(message, repeated, tag = "1")]
+    pub animals: ::prost::alloc::vec::Vec<AnimalResponse>,
 }
 /// Generated client implementations.
 pub mod read_service_client {
@@ -26,6 +33,7 @@ pub mod read_service_client {
     )]
     use tonic::codegen::*;
     use tonic::codegen::http::Uri;
+    /// Reading operations
     #[derive(Debug, Clone)]
     pub struct ReadServiceClient<T> {
         inner: tonic::client::Grpc<T>,
@@ -106,6 +114,7 @@ pub mod read_service_client {
             self.inner = self.inner.max_encoding_message_size(limit);
             self
         }
+        /// Fetch a single animal
         pub async fn get_animal(
             &mut self,
             request: impl tonic::IntoRequest<super::AnimalRequest>,
@@ -127,6 +136,31 @@ pub mod read_service_client {
                 .insert(GrpcMethod::new("shelter.ReadService", "GetAnimal"));
             self.inner.unary(req, path, codec).await
         }
+        /// Fetch all animals
+        pub async fn get_all_animals(
+            &mut self,
+            request: impl tonic::IntoRequest<super::GetAllAnimalsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::AnimalListResponse>,
+            tonic::Status,
+        > {
+            self.inner
+                .ready()
+                .await
+                .map_err(|e| {
+                    tonic::Status::unknown(
+                        format!("Service was not ready: {}", e.into()),
+                    )
+                })?;
+            let codec = tonic_prost::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static(
+                "/shelter.ReadService/GetAllAnimals",
+            );
+            let mut req = request.into_request();
+            req.extensions_mut()
+                .insert(GrpcMethod::new("shelter.ReadService", "GetAllAnimals"));
+            self.inner.unary(req, path, codec).await
+        }
     }
 }
 /// Generated server implementations.
@@ -142,11 +176,21 @@ pub mod read_service_server {
     /// Generated trait containing gRPC methods that should be implemented for use with ReadServiceServer.
     #[async_trait]
     pub trait ReadService: std::marker::Send + std::marker::Sync + 'static {
+        /// Fetch a single animal
         async fn get_animal(
             &self,
             request: tonic::Request<super::AnimalRequest>,
         ) -> std::result::Result<tonic::Response<super::AnimalResponse>, tonic::Status>;
+        /// Fetch all animals
+        async fn get_all_animals(
+            &self,
+            request: tonic::Request<super::GetAllAnimalsRequest>,
+        ) -> std::result::Result<
+            tonic::Response<super::AnimalListResponse>,
+            tonic::Status,
+        >;
     }
+    /// Reading operations
     #[derive(Debug)]
     pub struct ReadServiceServer<T> {
         inner: Arc<T>,
@@ -253,6 +297,51 @@ pub mod read_service_server {
                     let inner = self.inner.clone();
                     let fut = async move {
                         let method = GetAnimalSvc(inner);
+                        let codec = tonic_prost::ProstCodec::default();
+                        let mut grpc = tonic::server::Grpc::new(codec)
+                            .apply_compression_config(
+                                accept_compression_encodings,
+                                send_compression_encodings,
+                            )
+                            .apply_max_message_size_config(
+                                max_decoding_message_size,
+                                max_encoding_message_size,
+                            );
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/shelter.ReadService/GetAllAnimals" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetAllAnimalsSvc<T: ReadService>(pub Arc<T>);
+                    impl<
+                        T: ReadService,
+                    > tonic::server::UnaryService<super::GetAllAnimalsRequest>
+                    for GetAllAnimalsSvc<T> {
+                        type Response = super::AnimalListResponse;
+                        type Future = BoxFuture<
+                            tonic::Response<Self::Response>,
+                            tonic::Status,
+                        >;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::GetAllAnimalsRequest>,
+                        ) -> Self::Future {
+                            let inner = Arc::clone(&self.0);
+                            let fut = async move {
+                                <T as ReadService>::get_all_animals(&inner, request).await
+                            };
+                            Box::pin(fut)
+                        }
+                    }
+                    let accept_compression_encodings = self.accept_compression_encodings;
+                    let send_compression_encodings = self.send_compression_encodings;
+                    let max_decoding_message_size = self.max_decoding_message_size;
+                    let max_encoding_message_size = self.max_encoding_message_size;
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let method = GetAllAnimalsSvc(inner);
                         let codec = tonic_prost::ProstCodec::default();
                         let mut grpc = tonic::server::Grpc::new(codec)
                             .apply_compression_config(

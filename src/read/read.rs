@@ -6,7 +6,7 @@ use super::{
 use grpcrow::{
     pb::shelter::{
         read_service_server::{ReadService},
-        AnimalRequest, AnimalResponse,
+        AnimalRequest, AnimalResponse, GetAllAnimalsRequest, AnimalListResponse,
     },
     components::db::args,
     queries,
@@ -44,6 +44,32 @@ impl ReadService for ReadServer {
                 Ok(Response::new(reply))
             }
             Ok(None) => Err(Status::not_found("Animal not found in shelter database")),
+            Err(e) => Err(Status::internal(format!("DB error: {}", e))),
+        }
+    }
+
+    async fn get_all_animals(
+        &self,
+        _request: Request<GetAllAnimalsRequest>,
+    ) -> Result<Response<AnimalListResponse>, Status> {
+        let result = self.db.fetch_all::<Animal>(
+            &queries().unwrap().read.get_all_animals,
+            args![]
+        ).await;
+
+        match result {
+            Ok(animals) => {
+                let animals: Vec<AnimalResponse> = animals.into_iter().map(|animal| AnimalResponse {
+                    id: animal.id,
+                    name: animal.name,
+                    species: animal.species,
+                    breed: animal.breed.unwrap_or_else(|| "Unknown".to_string()),
+                }).collect();
+
+                let reply = AnimalListResponse { animals };
+
+                Ok(Response::new(reply))
+            }
             Err(e) => Err(Status::internal(format!("DB error: {}", e))),
         }
     }

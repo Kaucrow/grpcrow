@@ -1,17 +1,28 @@
 syntax = "proto3";
 package shelter;
 
+// Reading operations
 service ReadService {
+    // Fetch a single animal
     rpc GetAnimal (AnimalRequest) returns (AnimalResponse);
+
+    // Fetch all animals
+    rpc GetAllAnimals (GetAllAnimalsRequest) returns (AnimalListResponse);
 }
 
 message AnimalRequest {
     int32 id = 1;
 }
 
+message GetAllAnimalsRequest {}
+
 message AnimalResponse {
     int32 id = 1;
     string name = 2;
     string species = 3;
     string breed = 4;
+}
+
+message AnimalListResponse {
+    repeated AnimalResponse animals = 1;
 }
